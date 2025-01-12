@@ -2,7 +2,6 @@
 1.	Create a directory for your scripts:
 ```
 mkdir -p ~/.zsh/scripts
-
 ```
 2.	Add the directory to your PATH in ~/.zshrc:
 ```
