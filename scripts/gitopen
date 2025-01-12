@@ -1,0 +1,41 @@
+#!/bin/zsh
+
+open_repo() {
+    # Get the remote URL from git
+    local remote_url=$(git remote -v | grep fetch | awk '{print $2}')
+    
+    # If no remote URL found
+    if [[ -z "$remote_url" ]]; then
+        echo "No remote repository found"
+        exit 1
+    }
+    
+    # Convert SSH URL to HTTPS if necessary
+    if [[ "$remote_url" =~ ^git@ ]]; then
+        # Convert git@github.com:username/repo.git to https://github.com/username/repo
+        remote_url=$(echo "$remote_url" | sed 's/:/\//' | sed 's/git@/https:\/\//' | sed 's/\.git$//')
+    elif [[ "$remote_url" =~ ^https ]]; then
+        # Remove .git from HTTPS URLs if present
+        remote_url=$(echo "$remote_url" | sed 's/\.git$//')
+    fi
+    
+    # Check if we're in a git repository
+    if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        echo "Not in a git repository"
+        exit 1
+    }
+    
+    # Open the URL in the default browser
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # macOS
+        open "$remote_url"
+    elif [[ "$(uname)" == "Linux" ]]; then
+        # Linux
+        xdg-open "$remote_url" >/dev/null 2>&1
+    else
+        echo "Unsupported operating system"
+        exit 1
+    fi
+}
+
+open_repo
